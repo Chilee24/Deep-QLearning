@@ -110,6 +110,7 @@ complex = [
         ]}
 ]
 
-maps = {"uniform" + str(i + 1): uniform for i, uniform in enumerate(uniform)} | \
-       {"diverse" + str(i + 1): diverse for i, diverse in enumerate(diverse)} | \
-       {"complex" + str(i + 1): complex for i, complex in enumerate(complex)}
+maps = {}
+maps.update({"uniform" + str(i + 1): uniform for i, uniform in enumerate(uniform)})
+maps.update({"diverse" + str(i + 1): diverse for i, diverse in enumerate(diverse)})
+maps.update({"complex" + str(i + 1): complex for i, complex in enumerate(complex)})

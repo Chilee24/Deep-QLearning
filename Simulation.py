@@ -10,31 +10,28 @@ from environment.Robot import Robot
 from environment.Colors import *
 from environment.MapData import maps
 
-
-
 # Choose the version of the algorithm:
-# 1 for Classical Q-Learning, 2 for DFQL, 3 for Combined Q-Learning, 4 for Dual Q-Learning, 5 for DWA
-version = input("Enter version (1-ClassicalQL, 2-DFQL, 3-CombinedQL, 4-DualQL, 5-DWA): ")
+# 1 for Classical Q-Learning, 2 for DFQL, 3 for Combined Q-Learning, 4 for Dual Q-Learning,
+# 5 for DWA, 6 for Qeep QL
+version = input("Enter version (1-ClassicalQL, 2-DFQL, 3-CombinedQL, 4-DualQL, 5-DWA, 6-QeepQL): ")
 if version == "1":
-    from controller.ClassicalQL import QLearning as Controller
-
+    from controller.ClassicalQL import QLear6ning as Controller
     algorithm = "ClassicalQL"
 elif version == "2":
     from controller.DFQL import QLearning as Controller
-
     algorithm = "DFQL"
 elif version == "3":
     from controller.CombinedQL import QLearning as Controller
-
     algorithm = "CombinedQL"
 elif version == "4":
     from controller.DualQL import QLearning as Controller
-
     algorithm = "DualQL"
 elif version == "5":
     from controller.DWA import DynamicWindowApproach as Controller
-
     algorithm = "DWA"
+elif version == "6":
+    from controller.DeepQL import DeepQLearning as Controller
+    algorithm = "DeepQL"
 else:
     algorithm = "Unknown"
 
@@ -230,7 +227,7 @@ if __name__ == '__main__':
             robot.resetController()
     else:
         for i in range(numsOfRuns):
-            # Initialize the controller tester for QL (ver 1-4) for each run
+            # Initialize the controller tester for QL (ver 1-4-6) for each run
             if version != "5":
                 robot.decisionMaker = ControllerTester(cell_size=cell_size, env_size=env_size, env_padding=env_padding,
                                                        goal=goal, scenario=scenario, current_map=input_map,
