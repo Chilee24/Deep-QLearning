@@ -14,7 +14,8 @@ from environment.MapData import maps
 from controller.DeepQL import QNetwork
 
 # Choose the version of the algorithm:
-version = 6 #input("Enter version (1-ClassicalQL, 2-DFQL, 3-CombinedQL, 4-DualQL, 5-DWA, 6-DeepQL): ")
+version = "6"
+#input("Enter version (1-ClassicalQL, 2-DFQL, 3-CombinedQL, 4-DualQL, 5-DWA, 6-DeepQL): ")
 if version == "1":
     from controller.ClassicalQL import QLearning as Controller
     algorithm = "ClassicalQL"
@@ -43,10 +44,14 @@ elif version == "3":
 else:
     from controller.Controller import ControllerTester
 
-isTraining = True #version != "5" and input("Training? (y/n): ") == "y"
-scenario = "diverse" #input("Enter scenario (uniform/diverse/complex): ")
-input_map = 3 #input("Enter map (1/2/3): ")
-numsOfRuns = 20 #if input("Automatically run 20 times? (y/n): ") == "y" else 1
+isTraining = True 
+#version != "5" and input("Training? (y/n): ") == "y"
+scenario = "diverse" 
+#input("Enter scenario (uniform/diverse/complex): ")
+input_map = "3"
+#input("Enter map (1/2/3): ")
+numsOfRuns = 20 
+#if input("Automatically run 20 times? (y/n): ") == "y" else 1
 
 # Initialize the robot
 start = maps[scenario + input_map]["Start"]
