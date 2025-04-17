@@ -28,10 +28,20 @@ class Obstacle(Object):
                 if index >= 0:
                     pos_x, pos_y = self.history[index]
                     # Draw boundary of the obstacle in dashed line
-                    pygame.draw.rect(window, LIGHT_BLUE, (pos_x - self.width / 2, pos_y - self.height / 2, self.width, self.height), 3)
+                    pygame.draw.polygon(window, LIGHT_BLUE, [
+                        (pos_x, pos_y - self.height / 2),  # Top
+                        (pos_x + self.width / 2, pos_y),  # Right
+                        (pos_x, pos_y + self.height / 2),  # Bottom
+                        (pos_x - self.width / 2, pos_y)   # Left
+                    ], 3)
 
         color = BLACK if self.static else CYAN
-        pygame.draw.rect(window, color, (self.x - self.width / 2, self.y - self.height / 2, self.width, self.height))
+        pygame.draw.polygon(window, color, [
+            (self.x, self.y - self.height / 2),  # Top
+            (self.x + self.width / 2, self.y),  # Right
+            (self.x, self.y + self.height / 2),  # Bottom
+            (self.x - self.width / 2, self.y)   # Left
+        ])
 
     # Move the obstacle within the boundaries
     def move(self) -> None:

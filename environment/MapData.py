@@ -78,7 +78,10 @@ complex = [
             Obstacle(463.0, 269.5, 34, 33, False, [1, 0],
                      followPath=True, path=[(463.0, 269.5), (396.5, 271.0), (336.0, 270.0), (280.0, 290.0), (249.0, 324.5), (224.5, 356.5),
                                             (187.0, 380.0), (126.0, 382.0), (77.0, 382.5)])
-        ]}, {
+        ]
+    }, 
+
+    {
         "Start": (342, 518),
         "Goal": (230, 54),
         "Obstacles": [
@@ -92,7 +95,10 @@ complex = [
             Obstacle(238.0, 110.0, 66, 64, False, [0.75, 0],
                      followPath=True, path=[(238.0, 110.0), (237.0, 159.0), (239.5, 186.0), (255.5, 218.0), (276.0, 252.0), (300.5, 284.5),
                                             (332.0, 314.5), (373.0, 334.5), (413.5, 335.0), (451.5, 335.0), (493.0, 334.0)]),
-        ]}, {
+        ]
+    },
+
+    {
         "Start": (70, 422),
         "Goal": (502, 118),
         "Obstacles": [
@@ -107,10 +113,84 @@ complex = [
             Obstacle(494.0, 478.5, 34, 33, False, [0.9, 0],
                      followPath=True, path=[(494.0, 478.5), (469.0, 424.0), (440.5, 377.0), (401.5, 331.0), (334.5, 300.5), (278.0, 289.0),
                            (221.0, 286.0), (157.0, 286.0), (62.0, 284.5)])
-        ]}
+        ]
+    }
+]
+
+map1 = [
+    {
+    "Start": (50, 50),  # Tọa độ bắt đầu (có thể thay đổi tùy ý)
+    "Goal": (450, 450),  # Tọa độ mục tiêu (có thể thay đổi tùy ý)
+    "Obstacles": [
+        Obstacle(100, 100, 40, 40, True, [0, 0]),  # Không cần thay đổi vì width = height
+        Obstacle(200, 100, 40, 40, True, [0, 0]),
+        Obstacle(300, 100, 40, 40, True, [0, 0]),
+        Obstacle(400, 100, 40, 40, True, [0, 0]),
+        Obstacle(100, 200, 40, 40, True, [0, 0]),
+        Obstacle(200, 200, 40, 40, True, [0, 0]),
+        Obstacle(300, 200, 40, 40, True, [0, 0]),
+        Obstacle(400, 200, 40, 40, True, [0, 0]),
+        Obstacle(100, 300, 40, 40, True, [0, 0]),
+        Obstacle(200, 300, 40, 40, True, [0, 0]),
+        Obstacle(300, 300, 40, 40, True, [0, 0]),
+        Obstacle(400, 300, 40, 40, True, [0, 0]),
+        Obstacle(100, 400, 40, 40, True, [0, 0]),
+        Obstacle(200, 400, 40, 40, True, [0, 0]),
+        Obstacle(300, 400, 40, 40, True, [0, 0]),
+        Obstacle(400, 400, 40, 40, True, [0, 0]),
+    ]
+}
+]
+
+def scale_map_coordinates(file_path, scale_factor):
+    scaled_obstacles = []
+    with open(file_path, "r") as file:
+        lines = file.readlines()
+        map_width, map_height = map(int, lines[0].split())  # Kích thước map gốc
+        num_obstacles = int(lines[1])  # Số lượng obstacles
+
+        index = 2
+        for _ in range(num_obstacles):
+            num_vertices = int(lines[index])  # Số đỉnh của obstacle
+            index += 1
+            vertices = []
+            for _ in range(num_vertices):
+                x, y = map(int, lines[index].split())
+                scaled_x = int(x * scale_factor)
+                scaled_y = int(y * scale_factor)
+                vertices.append((scaled_x, scaled_y))
+                index += 1
+            scaled_obstacles.append(vertices)
+
+    return scaled_obstacles
+
+# Scale các tọa độ trong map1.txt
+file_path = "c:\\Users\\hieuh\\Downloads\\project\\Deep-QLearning\\map1.txt"
+scale_factor = 512 / 500  # Tỷ lệ scale
+scaled_obstacles = scale_map_coordinates(file_path, scale_factor)
+
+# Tạo danh sách obstacles cho MapData.py
+scaled_map1 = [
+    {
+    "Start": (int(50 * scale_factor), int(50 * scale_factor)),  # Scale tọa độ Start
+    "Goal": (int(450 * scale_factor), int(450 * scale_factor)),  # Scale tọa độ Goal
+    "Obstacles": 
+        [
+        Obstacle(
+            x=(vertices[0][0] + vertices[2][0]) // 2,  # Tọa độ trung tâm x
+            y=(vertices[0][1] + vertices[2][1]) // 2,  # Tọa độ trung tâm y
+            width=abs(vertices[0][0] - vertices[2][0]),  # Chiều rộng
+            height=abs(vertices[0][1] - vertices[2][1]),  # Chiều cao
+            static=True,
+            v=[0, 0]
+        )
+        for vertices in scaled_obstacles
+        ]
+    }
 ]
 
 maps = {}
 maps.update({"uniform" + str(i + 1): uniform for i, uniform in enumerate(uniform)})
 maps.update({"diverse" + str(i + 1): diverse for i, diverse in enumerate(diverse)})
 maps.update({"complex" + str(i + 1): complex for i, complex in enumerate(complex)})
+maps.update({"map11": map1})

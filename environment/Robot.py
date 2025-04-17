@@ -4,7 +4,7 @@ from controller.Controller import Controller
 
 
 class Robot:
-    def __init__(self, start: tuple, cell_size, decisionMaker: Controller, vision=40, r=8, numsOfSteps=8):
+    def __init__(self, start: tuple, cell_size, decisionMaker: Controller, vision=10, r=2, numsOfSteps=8):
         self.pos = start
         self.vision = vision
         self.r = r
