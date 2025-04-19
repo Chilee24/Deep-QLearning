@@ -199,6 +199,10 @@ class QLearning(Controller):
 
     # Out put policy to json file
     def outputPolicy(self, scenario, current_map, run_index) -> None:
+        # Create directory if it does not exist
+        import os
+        if not os.path.exists(f"policy/{scenario}/{current_map}/DualQL/{run_index}"):
+            os.makedirs(f"policy/{scenario}/{current_map}/DualQL/{run_index}", exist_ok=True)
         with open(f"policy/{scenario}/{current_map}/DualQL/{run_index}/policy.json", "w") as outfile:
             json.dump(remap_keys(self.policy), outfile, indent=2)
 

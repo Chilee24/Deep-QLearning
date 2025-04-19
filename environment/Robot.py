@@ -53,7 +53,7 @@ class Robot:
         return ((robotX - goalX) ** 2 + (robotY - goalY) ** 2) <= epsilon ** 2
 
     # Get the closest dynamic obstacles within the vision range
-    def detect(self, obstacles_list) -> list or None:
+    def detect(self, obstacles_list) -> list or None: # type: ignore
         # Get index of the closest dynamic obstacle
         index = -1
         min_distance = float('inf')

@@ -49,11 +49,11 @@ input_map = input("Enter map (1/2/3): ")
 numsOfRuns = 20 if input("Automatically run 20 times? (y/n): ") == "y" else 1
 
 # Initialize the robot
-start = maps[scenario + input_map][0]["Start"]
-goal = maps[scenario + input_map][0]["Goal"]
-cell_size = 16
+start = maps[scenario + input_map]["Start"]
+goal = maps[scenario + input_map]["Goal"]
+cell_size = 15
 env_size = 500
-env_padding = int(env_size * 0.02)
+env_padding = int(env_size * 0.06)
 path = []
 pathLength = 0
 distanceToObstacle = []
@@ -99,10 +99,12 @@ def main(test_map):
     SCREEN_WIDTH = env_width + LEFT_PAD + RIGHT_PAD
     SCREEN_HEIGHT = env_height + NORTH_PAD + SOUTH_PAD
 
-    pygame.init()
-    screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), 0, 32)
-    pygame.display.set_caption("Q-Learning Path Planning")
-    my_font = pygame.font.SysFont("arial", SOUTH_PAD // 5)
+    # Chỉ khởi tạo Pygame nếu không phải chế độ huấn luyện
+    if not isTraining:
+        pygame.init()
+        screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), 0, 32)
+        pygame.display.set_caption("Q-Learning Path Planning")
+        my_font = pygame.font.SysFont("arial", SOUTH_PAD // 5)
 
     finished = False
     obstacles_list = []
@@ -114,57 +116,67 @@ def main(test_map):
     robot.resetPosition(start)
 
     if test_map in maps:
-        obstacles_list = maps[test_map][0]["Obstacles"]
+        obstacles_list = maps[test_map]["Obstacles"]
+
+    step_count = 0  # Đếm số bước trong episode
 
     while not finished:
-        screen.fill(WHITE)
-        button1 = pygame.draw.rect(screen, BLACK, (LEFT_PAD + int(env_width * 0.7), NORTH_PAD * 2 + env_height,
-                                                   int(env_width * 0.2), int(SOUTH_PAD * 0.4)), 4)
-        button1_text = my_font.render("Start", True, (0, 0, 0))
-        button1_rect = button1_text.get_rect(center=button1.center)
-        screen.blit(button1_text, button1_rect)
+        # Chỉ xử lý giao diện và sự kiện nếu không phải chế độ huấn luyện
+        if not isTraining:
+            screen.fill(WHITE)
+            button1 = pygame.draw.rect(screen, BLACK, (LEFT_PAD + int(env_width * 0.7), NORTH_PAD * 2 + env_height,
+                                                       int(env_width * 0.2), int(SOUTH_PAD * 0.4)), 4)
+            button1_text = my_font.render("Start", True, (0, 0, 0))
+            button1_rect = button1_text.get_rect(center=button1.center)
+            screen.blit(button1_text, button1_rect)
 
-        button2 = pygame.draw.rect(screen, BLACK, (LEFT_PAD + int(env_width * 0.4), NORTH_PAD * 2 + env_height,
-                                                   int(env_width * 0.2), int(SOUTH_PAD * 0.4)), 4)
-        button2_text = my_font.render("Pause", True, (0, 0, 0))
-        button2_rect = button2_text.get_rect(center=button2.center)
-        screen.blit(button2_text, button2_rect)
+            button2 = pygame.draw.rect(screen, BLACK, (LEFT_PAD + int(env_width * 0.4), NORTH_PAD * 2 + env_height,
+                                                       int(env_width * 0.2), int(SOUTH_PAD * 0.4)), 4)
+            button2_text = my_font.render("Pause", True, (0, 0, 0))
+            button2_rect = button2_text.get_rect(center=button2.center)
+            screen.blit(button2_text, button2_rect)
 
-        for event in pygame.event.get():
-            if event.type == QUIT:
-                pygame.quit()
-                sys.exit()
-            if event.type == MOUSEBUTTONDOWN:
-                mouse_x, mouse_y = event.pos
-                if button1.collidepoint(mouse_x, mouse_y):
-                    started = True
-                elif button2.collidepoint(mouse_x, mouse_y):
-                    pause = not pause
+            for event in pygame.event.get():
+                if event.type == QUIT:
+                    pygame.quit()
+                    sys.exit()
+                if event.type == MOUSEBUTTONDOWN:
+                    mouse_x, mouse_y = event.pos
+                    if button1.collidepoint(mouse_x, mouse_y):
+                        started = True
+                    elif button2.collidepoint(mouse_x, mouse_y):
+                        pause = not pause
 
-        if started or numsOfRuns > 1:
-            if pause:
+        if started or numsOfRuns > 1 or isTraining:
+            if not isTraining and pause:
                 continue
             else:
                 for obstacle in obstacles_list:
                     obstacle.move()
-                    obstacle.draw(screen, with_past=False)
+                    if not isTraining:
+                        obstacle.draw(screen, with_past=False)
 
                 robot.makeDecision(obstacles_list)
                 robot.move()
 
                 path.append(robot.pos)
                 pathLength += np.sqrt((path[-1][0] - path[-2][0]) ** 2 + (path[-1][1] - path[-2][1]) ** 2)
-                draw_path(screen, path, ORANGE)
+                step_count += 1
+
+                if not isTraining:
+                    draw_path(screen, path, ORANGE)
 
                 if robot.checkCollision(obstacles_list) or pathLength > 5 * distanceStartGoal:
                     robot.setDiscount()
                     success_counter = 0
-                    consecutive_successes = 0  # Đặt lại nếu thất bại
+                    consecutive_successes = 0
                     finished = True
+                    result = "Fail"
 
-                draw_start(screen, start)
-                draw_target(screen, goal)
-                robot.draw(screen)
+                if not isTraining:
+                    draw_start(screen, start)
+                    draw_target(screen, goal)
+                    robot.draw(screen)
 
                 if not isTraining:
                     distanceToObstacle.append(robot.getDistanceToClosestObstacle(obstacles_list))
@@ -173,18 +185,25 @@ def main(test_map):
                 if robot.reach(goal):
                     robot.setSuccess()
                     success_counter += 1
-                    consecutive_successes += 1  # Tăng số lần thành công liên tiếp
+                    consecutive_successes += 1
                     finished = True
+                    result = "Success"
 
-        draw_grid(screen, cell_size, env_size, env_padding)
-        pygame.draw.rect(screen, BLACK, (LEFT_PAD, NORTH_PAD, env_width, env_height), 3)
-        pygame.display.update()
+        if not isTraining:
+            draw_grid(screen, cell_size, env_size, env_padding)
+            pygame.draw.rect(screen, BLACK, (LEFT_PAD, NORTH_PAD, env_width, env_height), 3)
+            pygame.display.update()
 
     for obstacle in obstacles_list:
         obstacle.reset()
 
+    # In thông tin sau mỗi epoch nếu đang huấn luyện
+    if isTraining:
+        sum_reward = sum([reward for _, _, reward in robot.decisionMaker.episodeDecisions])
+        print(f"Epoch {j + 1}: Steps = {step_count}, Sum Reward = {sum_reward}, Result = {result}")
+
 if __name__ == '__main__':
-    epochs = 6000 if version == "6" else 800
+    epochs = 5000 if version == "6" else 5000
 
     if isTraining:
         for i in range(numsOfRuns):
@@ -196,11 +215,9 @@ if __name__ == '__main__':
                 pathLength = 0
                 main(scenario + input_map)
 
-                # Học sớm: Kiểm tra số lần thành công liên tiếp
                 if version == "6" and consecutive_successes >= success_threshold and j > 700:
                     print(f"Early stopping at epoch {j + 1}: Achieved {consecutive_successes} consecutive successes")
-                    # robot.outputPolicy(scenario, scenario + input_map, i + 1)
-                    break  # Thoát vòng lặp epochs
+                    break
 
             robot.outputPolicy(scenario, scenario + input_map, i + 1)
             robot.resetController()

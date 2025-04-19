@@ -10,7 +10,9 @@ uniform = [
             Obstacle(286.5, 285.0, 31, 30, False, [0, 1], x_bound=(0, 0), y_bound=(116, 116)),
             Obstacle(286.0, 94.5, 506, 127, True, [0, 0]),
             Obstacle(285.0, 477.0, 508, 126, True, [0, 0])
-        ]}, {
+        ]
+    }, 
+    {
         "Start": (342, 518),
         "Goal": (230, 54),
         "Obstacles": [
@@ -20,7 +22,9 @@ uniform = [
             Obstacle(460.5, 111.5, 159, 158, True, [0, 0]),
             Obstacle(94.0, 335.0, 66, 64, False, [1.5, 0], x_bound=[0, 384], y_bound=[0, 0]),
             Obstacle(478.5, 238.5, 63, 63, False, [-1, 0], x_bound=[384, 0], y_bound=[0, 0])
-        ]}, {
+        ]
+    }, 
+    {
         "Start": (70, 422),
         "Goal": (502, 118),
         "Obstacles": [
@@ -28,8 +32,10 @@ uniform = [
             Obstacle(383.0, 461.0, 64, 156, True, [0, 0]),
             Obstacle(380.5, 158.5, 35, 37, False, [1, -1], x_bound=[192, 64], y_bound=[64, 192]),
             Obstacle(350.0, 317.5, 34, 33, False, [0.75, -0.75], x_bound=[172, 64], y_bound=[64, 172])
-        ]}
+        ]
+    }
 ]
+
 diverse = [
     {
         "Start": (54, 262),
@@ -40,7 +46,9 @@ diverse = [
             Obstacle(159.0, 239.0, 30, 30, False, [1.25, 0], x_bound=(64, 296), y_bound=(0, 0)),
             Obstacle(416.5, 335.0, 27, 30, False, [-1.5, 0], x_bound=(296, 64), y_bound=(0, 0)),
             Obstacle(285.5, 285.5, 25, 25, False, [0, 1], x_bound=(0, 0), y_bound=(116, 116))
-        ]}, {
+        ]
+    }, 
+    {
         "Start": (342, 518),
         "Goal": (230, 54),
         "Obstacles": [
@@ -50,7 +58,9 @@ diverse = [
             Obstacle(460.5, 111.5, 159, 158, True, [0, 0]),
             Obstacle(94.0, 335.0, 66, 64, False, [1.5, 0], x_bound=[0, 384], y_bound=[0, 0]),
             Obstacle(254.0, 127.0, 64, 66, False, [0, 1], x_bound=[0, 0], y_bound=[0, 368])
-        ]}, {
+        ]
+    }, 
+    {
         "Start": (70, 422),
         "Goal": (502, 118),
         "Obstacles": [
@@ -59,7 +69,8 @@ diverse = [
             Obstacle(302.0, 493.5, 34, 33, False, [0, -1], x_bound=[0, 0], y_bound=[384, 0]),
             Obstacle(173.5, 333.5, 33, 33, False, [1, 0], x_bound=[64, 288], y_bound=[0, 0]),
             Obstacle(397.5, 207.0, 33, 32, False, [1, -1], x_bound=[256, 128], y_bound=[128, 256])
-        ]}
+        ]
+    }
 ]
 complex = [
     {
@@ -138,59 +149,15 @@ map1 = [
         Obstacle(200, 400, 40, 40, True, [0, 0]),
         Obstacle(300, 400, 40, 40, True, [0, 0]),
         Obstacle(400, 400, 40, 40, True, [0, 0]),
+        # Thêm hai Obstacle động chạy dọc hai bên map ở phần giữa
+        Obstacle(50, 250, 30, 30, False, [0, 0.9], x_bound=(0, 0), y_bound=(150, 150)),  # Bên trái, chạy trong khoảng giữa
+        Obstacle(465, 250, 50, 50, False, [0, -0.9], x_bound=(0, 0), y_bound=(150, 150))  # Bên phải, chạy trong khoảng giữa
     ]
 }
-]
-
-def scale_map_coordinates(file_path, scale_factor):
-    scaled_obstacles = []
-    with open(file_path, "r") as file:
-        lines = file.readlines()
-        map_width, map_height = map(int, lines[0].split())  # Kích thước map gốc
-        num_obstacles = int(lines[1])  # Số lượng obstacles
-
-        index = 2
-        for _ in range(num_obstacles):
-            num_vertices = int(lines[index])  # Số đỉnh của obstacle
-            index += 1
-            vertices = []
-            for _ in range(num_vertices):
-                x, y = map(int, lines[index].split())
-                scaled_x = int(x * scale_factor)
-                scaled_y = int(y * scale_factor)
-                vertices.append((scaled_x, scaled_y))
-                index += 1
-            scaled_obstacles.append(vertices)
-
-    return scaled_obstacles
-
-# Scale các tọa độ trong map1.txt
-file_path = "c:\\Users\\hieuh\\Downloads\\project\\Deep-QLearning\\map1.txt"
-scale_factor = 512 / 500  # Tỷ lệ scale
-scaled_obstacles = scale_map_coordinates(file_path, scale_factor)
-
-# Tạo danh sách obstacles cho MapData.py
-scaled_map1 = [
-    {
-    "Start": (int(50 * scale_factor), int(50 * scale_factor)),  # Scale tọa độ Start
-    "Goal": (int(450 * scale_factor), int(450 * scale_factor)),  # Scale tọa độ Goal
-    "Obstacles": 
-        [
-        Obstacle(
-            x=(vertices[0][0] + vertices[2][0]) // 2,  # Tọa độ trung tâm x
-            y=(vertices[0][1] + vertices[2][1]) // 2,  # Tọa độ trung tâm y
-            width=abs(vertices[0][0] - vertices[2][0]),  # Chiều rộng
-            height=abs(vertices[0][1] - vertices[2][1]),  # Chiều cao
-            static=True,
-            v=[0, 0]
-        )
-        for vertices in scaled_obstacles
-        ]
-    }
 ]
 
 maps = {}
 maps.update({"uniform" + str(i + 1): uniform for i, uniform in enumerate(uniform)})
 maps.update({"diverse" + str(i + 1): diverse for i, diverse in enumerate(diverse)})
 maps.update({"complex" + str(i + 1): complex for i, complex in enumerate(complex)})
-maps.update({"map11": map1})
+maps.update({"map1" + str(i + 1): map1 for i, map1 in enumerate(map1)})
